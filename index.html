@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KL Zero</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --panel: #181c20;
+      --panel-2: #20262c;
+      --line: #303942;
+      --text: #f2f5f7;
+      --muted: #a9b3bc;
+      --accent: #5ee4b5;
+      --accent-2: #ffcb6b;
+      --danger: #ff6b7a;
+      --blue: #76b7ff;
+      --shadow: 0 18px 60px rgba(0, 0, 0, .28);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, rgba(94, 228, 181, .06), transparent 34rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow-x: hidden;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem clamp(1rem, 4vw, 3rem);
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+      background: rgba(16, 18, 20, .82);
+      backdrop-filter: blur(14px);
+      position: sticky;
+      top: 0;
+      z-index: 3;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 2rem;
+      height: 2rem;
+      border-radius: .45rem;
+      background:
+        linear-gradient(135deg, transparent 36%, rgba(16, 18, 20, .9) 37% 43%, transparent 44%),
+        linear-gradient(135deg, var(--accent), #76b7ff);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22);
+      flex: 0 0 auto;
+    }
+
+    h1 {
+      font-size: clamp(1.25rem, 2vw, 1.7rem);
+      line-height: 1;
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    .subhead {
+      margin: .18rem 0 0;
+      color: var(--muted);
+      font-size: .88rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .scoreboard {
+      display: flex;
+      gap: .65rem;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      min-height: 2.2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: .42rem;
+      padding: .42rem .68rem;
+      border: 1px solid rgba(255, 255, 255, .1);
+      background: rgba(255, 255, 255, .055);
+      border-radius: .45rem;
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .pill strong {
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      font-weight: 650;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+      gap: 1rem;
+      padding: 1rem clamp(1rem, 4vw, 3rem) 2rem;
+      align-items: stretch;
+    }
+
+    aside {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      min-width: 0;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .02)), var(--panel);
+      border: 1px solid rgba(255, 255, 255, .09);
+      border-radius: .5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .controls {
+      padding: 1rem;
+    }
+
+    .start {
+      width: 100%;
+      border: 0;
+      border-radius: .45rem;
+      min-height: 3rem;
+      background: var(--accent);
+      color: #07120f;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(94, 228, 181, .2);
+    }
+
+    .start:hover {
+      filter: brightness(1.04);
+    }
+
+    .start:active {
+      transform: translateY(1px);
+    }
+
+    .start[disabled] {
+      cursor: not-allowed;
+      opacity: .58;
+      box-shadow: none;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .65rem;
+      margin-top: 0;
+    }
+
+    .metric {
+      min-width: 0;
+      padding: .72rem;
+      border: 1px solid rgba(255, 255, 255, .08);
+      background: rgba(255, 255, 255, .04);
+      border-radius: .4rem;
+    }
+
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: .28rem;
+    }
+
+    .value {
+      font-size: clamp(1.15rem, 4vw, 1.55rem);
+      font-weight: 760;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+    .status {
+      margin: 1rem 0 0;
+      min-height: 2.8rem;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: .94rem;
+    }
+
+    .legend {
+      display: grid;
+      gap: .65rem;
+      padding: 1rem;
+    }
+
+    .legend h2,
+    .results h2 {
+      font-size: .95rem;
+      margin: 0;
+      color: var(--text);
+    }
+
+    .key {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .swatch {
+      width: 1.8rem;
+      height: .28rem;
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+
+    .swatch.generated {
+      background: var(--blue);
+    }
+
+
+    .swatch.player {
+      background: var(--accent);
+    }
+
+    .results {
+      padding: 1rem;
+      min-height: 11rem;
+    }
+
+    .results-grid {
+      display: grid;
+      gap: .58rem;
+      margin-top: .8rem;
+    }
+
+    .result-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: .8rem;
+      padding-bottom: .58rem;
+      border-bottom: 1px solid rgba(255, 255, 255, .07);
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .result-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .result-row strong {
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    .stage {
+      min-height: min(72vh, 48rem);
+      position: relative;
+      overflow: hidden;
+      display: grid;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      min-height: 34rem;
+      display: block;
+      touch-action: none;
+      cursor: crosshair;
+      background:
+        linear-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px),
+        var(--panel-2);
+      background-size: 100% 25%, 8.333% 100%;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      padding: 1rem;
+    }
+
+    .message {
+      max-width: 31rem;
+      pointer-events: auto;
+      padding: 1.1rem 1.2rem;
+      border-radius: .5rem;
+      border: 1px solid rgba(255, 255, 255, .12);
+      background: rgba(16, 18, 20, .82);
+      backdrop-filter: blur(10px);
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .message strong {
+      display: block;
+      color: var(--text);
+      font-size: 1.2rem;
+      margin-bottom: .3rem;
+    }
+
+    .message p {
+      margin: 0 0 1rem;
+    }
+
+    .definition {
+      color: rgba(169, 179, 188, .78);
+      font-size: .88rem;
+    }
+
+    .instructions {
+      color: var(--text);
+      font-size: .98rem;
+    }
+
+    .final-line {
+      margin-top: -.45rem;
+      font-weight: 750;
+      color: var(--accent);
+    }
+
+    .examples {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .5rem;
+      margin: .1rem 0 1rem;
+    }
+
+    .example {
+      padding: .42rem;
+      border-radius: .38rem;
+      border: 1px solid rgba(255, 255, 255, .1);
+      background: rgba(255, 255, 255, .055);
+      color: var(--muted);
+      font-size: .76rem;
+      line-height: 1.2;
+      min-width: 0;
+    }
+
+    .example strong {
+      display: block;
+      margin: 0 0 .28rem;
+      font-size: .9rem;
+      color: var(--text);
+    }
+
+    .mini-chart {
+      width: 100%;
+      height: 2.8rem;
+      margin-bottom: .3rem;
+      display: block;
+    }
+
+    .target-flash {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(.96);
+      padding: .95rem 1.15rem;
+      border-radius: .5rem;
+      border: 1px solid rgba(255, 255, 255, .16);
+      background: rgba(16, 18, 20, .84);
+      backdrop-filter: blur(10px);
+      text-align: center;
+      color: var(--muted);
+      pointer-events: none;
+      opacity: 0;
+      z-index: 2;
+    }
+
+    .target-flash.show {
+      animation: flashTarget 1.65s ease-out forwards;
+    }
+
+    .target-flash strong {
+      display: block;
+      color: var(--accent-2);
+      font-size: clamp(2rem, 7vw, 4.2rem);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    @keyframes flashTarget {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(.92); }
+      14% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      72% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.04); }
+    }
+
+    .countdown {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      width: min(12rem, calc(100% - 2rem));
+      height: .55rem;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, .1);
+      border: 1px solid rgba(255, 255, 255, .1);
+    }
+
+    .countdown span {
+      display: block;
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--danger));
+      transform-origin: left center;
+    }
+
+    @media (max-width: 860px) {
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .scoreboard {
+        justify-content: flex-start;
+      }
+
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .stage {
+        min-height: 31rem;
+      }
+
+      canvas {
+        min-height: 31rem;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .wide {
+        grid-column: auto;
+      }
+
+      .pill {
+        flex: 1 1 calc(50% - .65rem);
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="mark" aria-hidden="true"></div>
+        <div>
+          <h1>KL Zero</h1>
+          <p class="subhead">Draw a distribution that hits the requested divergence.</p>
+        </div>
+      </div>
+      <div class="scoreboard" aria-label="Current game stats">
+        <div class="pill">Best <strong id="bestScore">0</strong></div>
+        <div class="pill">Round <strong id="round">0</strong></div>
+        <div class="pill">Time <strong id="time">10.0</strong></div>
+      </div>
+    </header>
+
+    <main>
+      <aside>
+        <section class="panel controls">
+          <div class="metrics">
+            <div class="metric">
+              <span class="label">Target KL</span>
+              <div class="value" id="targetKL">--</div>
+            </div>
+            <div class="metric">
+              <span class="label">Source</span>
+              <div class="value" id="sourceName">--</div>
+            </div>
+          </div>
+          <p class="status" id="status">Press start in the chart. The blue line is the generated distribution; draw the green line before the timer ends.</p>
+        </section>
+
+        <section class="panel legend" aria-label="Chart legend">
+          <h2>Chart</h2>
+          <div class="key"><span class="swatch generated"></span>Generated distribution P</div>
+          <div class="key"><span class="swatch player"></span>Your drawn distribution Q</div>
+        </section>
+
+        <section class="panel results">
+          <h2>Last Score</h2>
+          <div class="results-grid">
+            <div class="result-row"><span>Total</span><strong id="scoreTotal">--</strong></div>
+            <div class="result-row"><span>Probability sum</span><strong id="scoreSum">--</strong></div>
+            <div class="result-row"><span>KL accuracy</span><strong id="scoreKL">--</strong></div>
+            <div class="result-row"><span>Your KL</span><strong id="actualKL">--</strong></div>
+            <div class="result-row"><span>Your sum</span><strong id="actualSum">--</strong></div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="panel stage" aria-label="Game chart">
+        <canvas id="chart" width="1200" height="760"></canvas>
+        <div class="countdown" aria-hidden="true"><span id="timeBar"></span></div>
+        <div class="target-flash" id="targetFlash" aria-live="polite">Target KL<strong id="targetFlashValue">--</strong></div>
+        <div class="overlay" id="overlay">
+          <div class="message">
+            <strong id="overlayTitle">Draw to the target KL.</strong>
+            <p class="definition" id="overlayDefinition">KL divergence measures how surprising the blue distribution P would look if your green distribution Q were used instead.</p>
+            <p class="instructions" id="overlayText">Draw any probability distribution that sums close to 1 and gets as close as possible to the target KL divergence number.</p>
+            <p class="instructions final-line">You have 10 seconds to do it. Go!</p>
+            <div class="examples" id="examples" aria-label="KL divergence examples">
+              <div class="example">
+                <strong>KL 0.1</strong>
+                <svg class="mini-chart" viewBox="0 0 100 44" aria-hidden="true">
+                  <path d="M5 34 C24 12 44 12 62 34 C75 44 88 40 95 36" fill="none" stroke="#76b7ff" stroke-width="4" stroke-linecap="round"></path>
+                  <path d="M5 35 C25 15 44 14 63 33 C75 42 88 39 95 36" fill="none" stroke="#5ee4b5" stroke-width="4" stroke-linecap="round"></path>
+                </svg>
+                nearly same
+              </div>
+              <div class="example">
+                <strong>KL 1</strong>
+                <svg class="mini-chart" viewBox="0 0 100 44" aria-hidden="true">
+                  <path d="M5 34 C24 12 44 12 62 34 C75 44 88 40 95 36" fill="none" stroke="#76b7ff" stroke-width="4" stroke-linecap="round"></path>
+                  <path d="M5 38 C19 38 30 34 40 23 C51 10 67 13 78 25 C87 35 93 38 95 38" fill="none" stroke="#5ee4b5" stroke-width="4" stroke-linecap="round"></path>
+                </svg>
+                shifted shape
+              </div>
+              <div class="example">
+                <strong>KL 10</strong>
+                <svg class="mini-chart" viewBox="0 0 100 44" aria-hidden="true">
+                  <path d="M5 34 C24 12 44 12 62 34 C75 44 88 40 95 36" fill="none" stroke="#76b7ff" stroke-width="4" stroke-linecap="round"></path>
+                  <path d="M5 39 C18 39 27 39 36 38 C50 36 62 27 72 13 C80 3 90 5 95 18" fill="none" stroke="#5ee4b5" stroke-width="4" stroke-linecap="round"></path>
+                </svg>
+                far apart
+              </div>
+            </div>
+            <button class="start" id="startButton">Start</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const N = 72;
+    const EPS = 1e-8;
+    const ROUND_SECONDS = 10;
+
+    const canvas = document.getElementById("chart");
+    const ctx = canvas.getContext("2d");
+    const startButton = document.getElementById("startButton");
+    const overlay = document.getElementById("overlay");
+    const overlayTitle = document.getElementById("overlayTitle");
+    const overlayDefinition = document.getElementById("overlayDefinition");
+    const examples = document.getElementById("examples");
+    const overlayText = document.getElementById("overlayText");
+    const timeEl = document.getElementById("time");
+    const timeBar = document.getElementById("timeBar");
+    const bestScoreEl = document.getElementById("bestScore");
+    const roundEl = document.getElementById("round");
+    const targetKLEl = document.getElementById("targetKL");
+    const targetFlash = document.getElementById("targetFlash");
+    const targetFlashValue = document.getElementById("targetFlashValue");
+    const sourceNameEl = document.getElementById("sourceName");
+    const statusEl = document.getElementById("status");
+    const scoreTotalEl = document.getElementById("scoreTotal");
+    const scoreSumEl = document.getElementById("scoreSum");
+    const scoreKLEl = document.getElementById("scoreKL");
+    const actualKLEl = document.getElementById("actualKL");
+    const actualSumEl = document.getElementById("actualSum");
+
+    const state = {
+      running: false,
+      drawing: false,
+      round: 0,
+      best: 0,
+      startTime: 0,
+      animation: 0,
+      p: uniformDistribution(),
+      player: new Array(N).fill(0),
+      sourceLabel: "--",
+      targetKL: 0,
+      lastCountdown: 0,
+      maxY: 0.12
+    };
+
+    const rand = (min, max) => min + Math.random() * (max - min);
+    const randi = (min, max) => Math.floor(rand(min, max + 1));
+
+    function uniformDistribution() {
+      return normalize(new Array(N).fill(1));
+    }
+
+    function normalize(values) {
+      const clipped = values.map((v) => Math.max(0, Number.isFinite(v) ? v : 0));
+      const sum = clipped.reduce((a, b) => a + b, 0);
+      if (sum <= EPS) return uniformDistribution();
+      return clipped.map((v) => v / sum);
+    }
+
+    function gaussian(mu, sigma) {
+      const vals = [];
+      for (let i = 0; i < N; i++) {
+        const x = i / (N - 1);
+        vals.push(Math.exp(-0.5 * ((x - mu) / sigma) ** 2));
+      }
+      return normalize(vals);
+    }
+
+    function uniformRange(a, b) {
+      const vals = [];
+      for (let i = 0; i < N; i++) {
+        const x = i / (N - 1);
+        vals.push(x >= a && x <= b ? 1 : 0.02);
+      }
+      return normalize(vals);
+    }
+
+    function exponential(lambda) {
+      const vals = [];
+      for (let i = 0; i < N; i++) {
+        vals.push(Math.exp(-lambda * (i / (N - 1))));
+      }
+      return normalize(vals);
+    }
+
+    function poisson(lambda) {
+      const vals = [];
+      const scale = 18;
+      for (let i = 0; i < N; i++) {
+        const k = Math.round((i / (N - 1)) * scale);
+        vals.push(Math.exp(k * Math.log(lambda) - lambda - logFactorial(k)));
+      }
+      return normalize(vals);
+    }
+
+    function betaLike(alpha, beta) {
+      const vals = [];
+      for (let i = 0; i < N; i++) {
+        const x = Math.min(1 - EPS, Math.max(EPS, i / (N - 1)));
+        vals.push(x ** (alpha - 1) * (1 - x) ** (beta - 1));
+      }
+      return normalize(vals);
+    }
+
+    function bimodal() {
+      const a = gaussian(rand(.18, .38), rand(.035, .09));
+      const b = gaussian(rand(.62, .84), rand(.04, .11));
+      return normalize(a.map((v, i) => v * rand(.65, 1.2) + b[i] * rand(.65, 1.2)));
+    }
+
+    function logFactorial(k) {
+      let acc = 0;
+      for (let i = 2; i <= k; i++) acc += Math.log(i);
+      return acc;
+    }
+
+    function randomDistribution() {
+      const options = [
+        () => {
+          const a = rand(0, .28);
+          const b = rand(.72, 1);
+          return { values: uniformRange(a, b), label: "Uniform" };
+        },
+        () => {
+          const sigma = rand(.06, .18);
+          return { values: gaussian(rand(.18, .82), sigma), label: "Normal" };
+        },
+        () => {
+          const lambda = rand(.8, 6.5);
+          return { values: poisson(lambda), label: "Poisson" };
+        },
+        () => {
+          const lambda = rand(1.1, 5.6);
+          return { values: exponential(lambda), label: "Exponential" };
+        },
+        () => {
+          return { values: betaLike(rand(.65, 4.2), rand(.65, 4.2)), label: "Beta" };
+        },
+        () => ({ values: bimodal(), label: "Bimodal" })
+      ];
+      return options[randi(0, options.length - 1)]();
+    }
+
+    function klDivergence(p, q) {
+      let total = 0;
+      for (let i = 0; i < p.length; i++) {
+        const pv = Math.max(EPS, p[i]);
+        const qv = Math.max(EPS, q[i]);
+        total += pv * Math.log(pv / qv);
+      }
+      return total;
+    }
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      draw();
+    }
+
+    function chartBounds() {
+      const rect = canvas.getBoundingClientRect();
+      const pad = Math.max(28, Math.min(56, rect.width * .045));
+      return {
+        x: pad,
+        y: pad,
+        w: rect.width - pad * 1.45,
+        h: rect.height - pad * 1.55
+      };
+    }
+
+    function valueToPoint(i, value) {
+      const b = chartBounds();
+      const x = b.x + (i / (N - 1)) * b.w;
+      const y = b.y + b.h - (Math.max(0, value) / state.maxY) * b.h;
+      return { x, y: Math.max(b.y, Math.min(b.y + b.h, y)) };
+    }
+
+    function pointerToIndexValue(event) {
+      const rect = canvas.getBoundingClientRect();
+      const b = chartBounds();
+      const x = Math.max(b.x, Math.min(b.x + b.w, event.clientX - rect.left));
+      const y = Math.max(b.y, Math.min(b.y + b.h, event.clientY - rect.top));
+      const index = Math.round(((x - b.x) / b.w) * (N - 1));
+      const value = ((b.y + b.h - y) / b.h) * state.maxY;
+      return { index, value };
+    }
+
+    function setPlayerPoint(index, value) {
+      state.player[index] = Math.max(0, value);
+    }
+
+    function interpolateDraw(from, to) {
+      const lo = Math.min(from.index, to.index);
+      const hi = Math.max(from.index, to.index);
+      for (let i = lo; i <= hi; i++) {
+        const t = hi === lo ? 0 : (i - lo) / (hi - lo);
+        const start = from.index <= to.index ? from.value : to.value;
+        const end = from.index <= to.index ? to.value : from.value;
+        setPlayerPoint(i, start + (end - start) * t);
+      }
+    }
+
+    let lastDrawPoint = null;
+
+    function onPointerDown(event) {
+      if (!state.running) return;
+      canvas.setPointerCapture(event.pointerId);
+      state.drawing = true;
+      lastDrawPoint = pointerToIndexValue(event);
+      setPlayerPoint(lastDrawPoint.index, lastDrawPoint.value);
+      draw();
+    }
+
+    function onPointerMove(event) {
+      if (!state.running || !state.drawing) return;
+      const next = pointerToIndexValue(event);
+      interpolateDraw(lastDrawPoint, next);
+      lastDrawPoint = next;
+      draw();
+    }
+
+    function onPointerUp() {
+      state.drawing = false;
+      lastDrawPoint = null;
+    }
+
+    function chooseLevel() {
+      const source = randomDistribution();
+      const difficulty = Math.random();
+      state.p = source.values;
+      state.sourceLabel = source.label;
+      state.targetKL = 0.05 + 2.15 * difficulty * difficulty;
+      state.player = new Array(N).fill(0);
+      state.maxY = Math.max(.04, ...state.p) * 1.35;
+    }
+
+    function startRound() {
+      cancelAnimationFrame(state.animation);
+      chooseLevel();
+      state.running = true;
+      state.drawing = false;
+      state.round += 1;
+      state.startTime = performance.now();
+      state.lastCountdown = 0;
+      startButton.disabled = true;
+      overlay.style.display = "none";
+      targetKLEl.textContent = state.targetKL.toFixed(3);
+      showCenterFlash("Target KL", state.targetKL.toFixed(3));
+      sourceNameEl.textContent = state.sourceLabel;
+      roundEl.textContent = state.round;
+      statusEl.textContent = "Draw now. Make any distribution that sums close to 1 and gets KL(P || Q) as close to the target as possible.";
+      scoreTotalEl.textContent = "--";
+      scoreSumEl.textContent = "--";
+      scoreKLEl.textContent = "--";
+      actualKLEl.textContent = "--";
+      actualSumEl.textContent = "--";
+      tick();
+    }
+
+    function showCenterFlash(label, value) {
+      targetFlash.childNodes[0].nodeValue = label;
+      targetFlashValue.textContent = value;
+      targetFlash.classList.remove("show");
+      void targetFlash.offsetWidth;
+      targetFlash.classList.add("show");
+    }
+
+    function tick() {
+      const elapsed = (performance.now() - state.startTime) / 1000;
+      const remaining = Math.max(0, ROUND_SECONDS - elapsed);
+      timeEl.textContent = remaining.toFixed(1);
+      timeBar.style.transform = `scaleX(${remaining / ROUND_SECONDS})`;
+      const countdown = Math.ceil(remaining);
+      if (countdown <= 3 && countdown > 0 && countdown !== state.lastCountdown) {
+        state.lastCountdown = countdown;
+        showCenterFlash("", countdown);
+      }
+      draw();
+      if (remaining <= 0) {
+        finishRound();
+        return;
+      }
+      state.animation = requestAnimationFrame(tick);
+    }
+
+    function playerDistribution() {
+      return normalize(state.player);
+    }
+
+    function finishRound() {
+      state.running = false;
+      state.drawing = false;
+      startButton.disabled = false;
+      startButton.textContent = "Next Round";
+
+      const rawSum = state.player.reduce((a, b) => a + b, 0);
+      const player = playerDistribution();
+      const actualKL = klDivergence(state.p, player);
+      const sumError = Math.abs(rawSum - 1);
+      const klError = Math.abs(actualKL - state.targetKL);
+      const sumScore = Math.round(100 * Math.exp(-3.5 * sumError));
+      const klScore = Math.round(100 * Math.exp(-2.2 * klError));
+      const total = Math.round(sumScore * .38 + klScore * .62);
+
+      state.best = Math.max(state.best, total);
+      bestScoreEl.textContent = state.best;
+      scoreTotalEl.textContent = `${total}`;
+      scoreSumEl.textContent = `${sumScore}/100`;
+      scoreKLEl.textContent = `${klScore}/100`;
+      actualKLEl.textContent = actualKL.toFixed(3);
+      actualSumEl.textContent = rawSum.toFixed(3);
+      statusEl.textContent = verdict(total, sumError, klError);
+      examples.style.display = "none";
+      overlayTitle.textContent = total + " points";
+      overlayDefinition.textContent = verdict(total, sumError, klError);
+      overlayText.textContent = "KL target " + state.targetKL.toFixed(3) + ", your KL " + actualKL.toFixed(3) + ". Sum " + rawSum.toFixed(3) + ".";
+      overlay.style.display = "grid";
+      draw();
+    }
+
+    function verdict(total, sumError, klError) {
+      if (total >= 90) return "Excellent: your curve behaved like a distribution and landed close to the requested divergence.";
+      if (total >= 70) return "Solid round. Tighten the area under your curve or push the KL a little closer.";
+      if (sumError > .35) return "Your curve missed the probability mass target. Keep the drawn area near 1 before chasing KL.";
+      if (klError > .5) return "The line summed decently, but the divergence was far from the target.";
+      return "Close enough to learn from. Try another distribution.";
+    }
+
+    function drawAxes() {
+      const b = chartBounds();
+      ctx.save();
+      ctx.strokeStyle = "rgba(255,255,255,.22)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(b.x, b.y);
+      ctx.lineTo(b.x, b.y + b.h);
+      ctx.lineTo(b.x + b.w, b.y + b.h);
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(242,245,247,.72)";
+      ctx.font = "12px ui-sans-serif, system-ui, sans-serif";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      for (let i = 0; i <= 4; i++) {
+        const value = (state.maxY * i) / 4;
+        const y = b.y + b.h - (i / 4) * b.h;
+        ctx.fillText(value.toFixed(2), b.x - 8, y);
+      }
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      ctx.fillText("x", b.x + b.w + 8, b.y + b.h - 8);
+      ctx.restore();
+    }
+
+    function drawLine(values, color, width, alpha, fill) {
+      const b = chartBounds();
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.lineWidth = width;
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.strokeStyle = color;
+      ctx.beginPath();
+      values.forEach((value, i) => {
+        const pt = valueToPoint(i, value);
+        if (i === 0) ctx.moveTo(pt.x, pt.y);
+        else ctx.lineTo(pt.x, pt.y);
+      });
+      ctx.stroke();
+
+      if (fill) {
+        ctx.lineTo(b.x + b.w, b.y + b.h);
+        ctx.lineTo(b.x, b.y + b.h);
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function drawPlayerHandles() {
+      if (!state.player.some((v) => v > EPS)) return;
+      ctx.save();
+      ctx.fillStyle = "#5ee4b5";
+      for (let i = 0; i < N; i += 6) {
+        const pt = valueToPoint(i, state.player[i]);
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 2.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function draw() {
+      const rect = canvas.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      drawAxes();
+      drawLine(state.p, "#76b7ff", 3, 1, "rgba(118,183,255,.08)");
+      if (state.player.some((v) => v > EPS)) {
+        drawLine(state.player, "#5ee4b5", 3.4, 1, "rgba(94,228,181,.06)");
+        drawPlayerHandles();
+      }
+    }
+
+    startButton.addEventListener("click", startRound);
+    canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerup", onPointerUp);
+    canvas.addEventListener("pointercancel", onPointerUp);
+    window.addEventListener("resize", resizeCanvas);
+
+    resizeCanvas();
+  </script>
+</body>
+</html>
